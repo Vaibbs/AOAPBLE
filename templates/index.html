@@ -62,9 +62,10 @@ async function randomizeOrder() {
 }
 
 async function sortBy(field, order) {
+    const category_wise = document.getElementById('category_wise').checked
     const res = await fetch('/sort', {method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({field, order})});
+        body: JSON.stringify({field, order, category_wise})});
     const result = await res.json();
     document.getElementById('status').textContent = result.message;
     fetchItems();
@@ -77,7 +78,7 @@ async function viewLogs() {
     tbody.innerHTML = "";
     logs.forEach((l,i)=>{
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${i+1}</td><td>${l.field}</td><td>${l.order}</td>
+        tr.innerHTML = `<td>${i+1}</td><td>${l.field}</td><td>${l.order}</td><td>${l.categoryWise}</td>
                         <td>${l.count}</td><td>${l.time}</td><td>${l.timestamp}</td>`;
         tbody.appendChild(tr);
     });
@@ -123,6 +124,7 @@ window.onload=fetchItems;
         <button onclick="sortBy('final_cost','desc')">Discounted ↓</button>
         <button onclick="sortBy('stock','asc')">Stock ↑</button>
         <button onclick="sortBy('stock','desc')">Stock ↓</button>
+        <label><input type="checkbox" id="category_wise"> Category Wise </label>
         <button onclick="viewLogs()">🧾 View Logs</button>
     </div>
     <div id="status" class="statusbar">Ready.</div>
@@ -160,7 +162,7 @@ window.onload=fetchItems;
   <div class="modal-content">
     <h3>Sort Logs</h3>
     <table>
-      <thead><tr><th>#</th><th>Field</th><th>Order</th><th>Count</th><th>Time (ms)</th><th>Timestamp</th></tr></thead>
+      <thead><tr><th>#</th><th>Field</th><th>Order</th><th>Category Wise</th><th>Count</th><th>Time (ms)</th><th>Timestamp</th></tr></thead>
       <tbody id="logbody"></tbody>
     </table>
     <button onclick="closeLogs()">Close</button>

@@ -78,13 +78,34 @@ def randomize_order():
 
 @app.route('/sort', methods=['POST'])
 def sort_items():
+    global items
     req = request.json
     field = req['field']
     order = req['order']  # 'asc' or 'desc'
     reverse = (order == 'desc')
-
+    categoryWise = req['category_wise'] # true or false
+    print(categoryWise)
     start = time.perf_counter_ns()
-    heapSortIterative(items, lambda x: x[field], reverse)
+    if categoryWise:
+        cate = dict()
+        for i in items:
+            c = i['category']
+            if c in cate:
+                cate[c].append(i)
+            else:
+                cate[c] = [i]
+        
+        tItems = [] 
+        cate = list(cate.values())
+        heapSortIterative(cate, lambda x: len(x), True)
+        for i in cate:
+            print(i)
+            heapSortIterative(i, lambda x: x[field], reverse)
+            tItems.extend(i)
+        
+        items = tItems
+    else:
+        heapSortIterative(items, lambda x: x[field], reverse)
     elapsed = time.perf_counter_ns() - start
 
     elapsed /= 1000 * 1000
@@ -92,6 +113,7 @@ def sort_items():
     log = {
         "field": field,
         "order": order,
+        "categoryWise": categoryWise,
         "count": len(items),
         "time": elapsed,
         "timestamp": datetime.datetime.now().strftime("%H:%M:%S")
